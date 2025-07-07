@@ -60,25 +60,49 @@ const BorrowersList: React.FC = () => {
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [inviteEmail, setInviteEmail] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [inviteCode, setInviteCode] = useState('')
+  const [showSuccess, setShowSuccess] = useState(false)
+
+  const generateInviteCode = () => {
+    return `MOOLA-2024-${Math.random().toString(36).substr(2, 6).toUpperCase()}`
+  }
 
   const handleInviteBorrower = async () => {
     if (!inviteEmail) return
 
     setIsLoading(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      console.log('Inviting borrower:', inviteEmail)
-      setShowInviteModal(false)
-      setInviteEmail('')
-      // Show success message
-      alert('Invitation sent successfully!')
+      // Simulate API call with delay
+      await new Promise(resolve => setTimeout(resolve, 1500))
+      
+      // Generate new invite code
+      const newCode = generateInviteCode()
+      setInviteCode(newCode)
+      setShowSuccess(true)
+      
+      console.log('Invitation sent to:', inviteEmail, 'with code:', newCode)
+      
+      // Reset form after showing success
+      setTimeout(() => {
+        setShowInviteModal(false)
+        setInviteEmail('')
+        setShowSuccess(false)
+        setInviteCode('')
+      }, 3000)
+      
     } catch (error) {
       console.error('Failed to send invitation:', error)
       alert('Failed to send invitation. Please try again.')
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const handleCloseModal = () => {
+    setShowInviteModal(false)
+    setInviteEmail('')
+    setShowSuccess(false)
+    setInviteCode('')
   }
 
   return (
@@ -91,9 +115,10 @@ const BorrowersList: React.FC = () => {
         </div>
         <button
           onClick={() => setShowInviteModal(true)}
-          className="bg-sageGreen text-white px-6 py-2 rounded-lg font-medium hover:bg-opacity-90 transition-colors"
+          className="bg-sageGreen text-white px-6 py-2 rounded-lg font-medium hover:bg-opacity-90 transition-colors flex items-center space-x-2"
         >
-          + Invite Borrower
+          <span>+</span>
+          <span>Invite Borrower</span>
         </button>
       </div>
 
@@ -191,45 +216,87 @@ const BorrowersList: React.FC = () => {
       {showInviteModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">Invite Borrower</h2>
-            <p className="text-gray-600 mb-4">Share this code with your borrower</p>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Borrower Email
-                </label>
-                <input
-                  type="email"
-                  value={inviteEmail}
-                  onChange={(e) => setInviteEmail(e.target.value)}
-                  placeholder="Enter borrower's email address"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-sageGreen focus:border-transparent"
-                />
-              </div>
-              
-              <div className="bg-gray-100 p-3 rounded-md">
-                <p className="text-sm text-gray-600">Invitation Code:</p>
-                <p className="font-mono text-lg font-bold text-sageGreen">MOOLA-2024-{Math.random().toString(36).substr(2, 6).toUpperCase()}</p>
-              </div>
-            </div>
+            {!showSuccess ? (
+              <>
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-bold text-gray-900">Invite Borrower</h2>
+                  <button 
+                    onClick={handleCloseModal}
+                    className="text-gray-400 hover:text-gray-600"
+                  >
+                    ✕
+                  </button>
+                </div>
+                <p className="text-gray-600 mb-4">Share this code with your borrower</p>
+                
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Borrower Email
+                    </label>
+                    <input
+                      type="email"
+                      value={inviteEmail}
+                      onChange={(e) => setInviteEmail(e.target.value)}
+                      placeholder="Enter borrower's email address"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-sageGreen focus:border-transparent"
+                    />
+                  </div>
+                  
+                  <div className="bg-gray-50 p-4 rounded-md">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center">
+                        <span className="text-white text-sm">🔗</span>
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">How it works:</p>
+                      </div>
+                    </div>
+                    <ol className="text-sm text-gray-600 space-y-1 ml-11">
+                      <li>1. Share your referral code with borrowers</li>
+                      <li>2. They enter the code during registration</li>
+                      <li>3. They're automatically linked to you as their lender</li>
+                    </ol>
+                  </div>
+                </div>
 
-            <div className="flex space-x-3 mt-6">
-              <button
-                onClick={() => setShowInviteModal(false)}
-                className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
-                disabled={isLoading}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleInviteBorrower}
-                disabled={!inviteEmail || isLoading}
-                className="flex-1 px-4 py-2 bg-sageGreen text-white rounded-md hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isLoading ? 'Sending...' : 'Send Invitation'}
-              </button>
-            </div>
+                <div className="flex space-x-3 mt-6">
+                  <button
+                    onClick={handleCloseModal}
+                    className="flex-1 px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors"
+                    disabled={isLoading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleInviteBorrower}
+                    disabled={!inviteEmail || isLoading}
+                    className="flex-1 px-4 py-2 bg-sageGreen text-white rounded-md hover:bg-opacity-90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? 'Sending...' : 'Send Invitation'}
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-green-600 text-2xl">✓</span>
+                  </div>
+                  <h2 className="text-xl font-bold text-gray-900 mb-2">Invitation Sent!</h2>
+                  <p className="text-gray-600 mb-4">Your invitation has been sent to {inviteEmail}</p>
+                  
+                  <div className="bg-sageGreen bg-opacity-10 p-4 rounded-lg mb-4">
+                    <p className="text-sm text-gray-600 mb-2">Invitation Code:</p>
+                    <p className="font-mono text-lg font-bold text-sageGreen">{inviteCode}</p>
+                  </div>
+                  
+                  <p className="text-sm text-gray-500">
+                    This modal will close automatically in a few seconds...
+                  </p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}

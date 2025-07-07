@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import Dashboard from './components/Dashboard'
 import BorrowersList from './components/BorrowersList'
 import LoansList from './components/LoansList'
+import Reports from './components/Reports'
 import Settings from './components/Settings'
 import Navigation from './components/Navigation'
 
@@ -16,6 +17,7 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/borrowers" element={<BorrowersList />} />
             <Route path="/loans" element={<LoansList />} />
+            <Route path="/reports" element={<Reports />} />
             <Route path="/settings" element={<Settings />} />
           </Routes>
         </main>
